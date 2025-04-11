@@ -97,6 +97,33 @@ const App = () => {
   const [loading, setLoading] = useState(false); // Loading indicator
   const [saveStatus, setSaveStatus] = useState(null); // Success/error for saving photo/text
   const [copyStatus, setCopyStatus] = useState(null); // Feedback for copy action
+  // Check and request geolocation permission on app start
+  React.useEffect(() => {
+    async function checkAndRequestLocationPermission() {
+      if (Platform.OS === 'android') {
+        const hasPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+        if (!hasPermission) {
+          const granted = await requestAndroidPermission(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+              title: 'Location Permission',
+              message: 'This app needs access to your location to tag OCR scans.',
+              buttonPositive: 'OK',
+            }
+          );
+          if (!granted) {
+            Alert.alert(
+              'Permission Required',
+              'Location permission is required for geotagging scans. Please enable it in settings.',
+              [{ text: 'OK' }]
+            );
+          }
+        }
+      }
+      // On iOS, permissions are handled by the OS prompt when using Geolocation
+    }
+    checkAndRequestLocationPermission();
+  }, []);
 
   // Handle taking a photo with the camera
   const handleTakePhoto = async () => {
