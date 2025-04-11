@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@react-native-camera-roll/camera-roll": "^7.10.0",
     "@react-native-clipboard/clipboard": "^1.16.2",
     "@react-native-ml-kit/text-recognition": "^1.5.2",
     "react": "19.0.0",

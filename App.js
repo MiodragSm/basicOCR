@@ -70,7 +70,7 @@ import TextRecognition from '@react-native-ml-kit/text-recognition';
 import Geolocation from 'react-native-geolocation-service';
 
 // Save photo to gallery
-import CameraRoll from 'react-native-cameraroll';
+import CameraRoll from '@react-native-camera-roll/camera-roll';
 
 // Save text to file
 import RNFS from 'react-native-fs';
@@ -97,6 +97,8 @@ const App = () => {
   const [loading, setLoading] = useState(false); // Loading indicator
   const [saveStatus, setSaveStatus] = useState(null); // Success/error for saving photo/text
   const [copyStatus, setCopyStatus] = useState(null); // Feedback for copy action
+  // Scan history: array of { imageUri, extractedText, location, timestamp }
+  const [history, setHistory] = useState([]);
   // Check and request geolocation permission on app start
   React.useEffect(() => {
     async function checkAndRequestLocationPermission() {
@@ -157,7 +159,7 @@ const App = () => {
         saveToPhotos: false,
       },
       async (response) => {
-        if (response.didCancel) return;
+        if (response.didCancel) {return;}
         if (response.errorCode) {
           Alert.alert('Camera Error', response.errorMessage || 'Unknown error');
           return;
@@ -203,7 +205,7 @@ const App = () => {
         mediaType: 'photo',
       },
       async (response) => {
-        if (response.didCancel) return;
+        if (response.didCancel) {return;}
         if (response.errorCode) {
           Alert.alert('Gallery Error', response.errorMessage || 'Unknown error');
           return;
@@ -237,7 +239,7 @@ const App = () => {
             buttonPositive: 'OK',
           }
         );
-        if (!locGranted) throw new Error('Location permission denied');
+        if (!locGranted) {throw new Error('Location permission denied');}
       }
       if (Platform.OS === 'ios') {
         // iOS: Geolocation permission is handled by Info.plist
@@ -275,11 +277,22 @@ const App = () => {
       setExtractedText('OCR failed: ' + (err.message || 'Unknown error'));
     }
     setLoading(false);
-  };
+
+    // Add scan to history
+    setHistory((prev) => [
+      {
+        imageUri: uri,
+        extractedText,
+        location,
+        timestamp: new Date().toISOString(),
+      },
+      ...prev,
+    ]);
+};
 
   // Save photo to gallery (only for camera images)
   const handleSavePhoto = async () => {
-    if (!imageUri || imageSource !== 'camera') return;
+    if (!imageUri || imageSource !== 'camera') {return;}
     setSaveStatus(null);
 
     try {
@@ -309,7 +322,7 @@ const App = () => {
 
   // Share extracted text
   const handleShareText = async () => {
-    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) return;
+    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) {return;}
     try {
       await Share.share({ message: extractedText });
     } catch (err) {
@@ -319,7 +332,7 @@ const App = () => {
 
   // Copy extracted text to clipboard
   const handleCopyText = () => {
-    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) return;
+    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) {return;}
     Clipboard.setString(extractedText);
     setCopyStatus('Copied!');
     setTimeout(() => setCopyStatus(null), 1500);
@@ -327,28 +340,36 @@ const App = () => {
 
   // Save extracted text to file
   const handleSaveTextToFile = async () => {
-    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) return;
+    if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) {return;}
     setSaveStatus(null);
 
     try {
-      // Android: request storage permission if saving to Downloads
       let dir = RNFS.DocumentDirectoryPath;
-      if (Platform.OS === 'android' && RNFS.DownloadDirectoryPath) {
-        dir = RNFS.DownloadDirectoryPath;
-        const writeGranted = await requestAndroidPermission(
-          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-          {
-            title: 'Storage Permission',
-            message: 'App needs storage access to save files.',
-            buttonPositive: 'OK',
+      let filePath = '';
+      if (Platform.OS === 'android') {
+        const apiLevel = Platform.Version;
+        if (apiLevel >= 30) {
+          // Android 11+ (Scoped Storage): use app-private directory
+          dir = RNFS.DocumentDirectoryPath;
+        } else if (RNFS.DownloadDirectoryPath) {
+          // Android < 11: can use Downloads with permission
+          const writeGranted = await requestAndroidPermission(
+            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            {
+              title: 'Storage Permission',
+              message: 'App needs storage access to save files to Downloads.',
+              buttonPositive: 'OK',
+            }
+          );
+          if (writeGranted) {
+            dir = RNFS.DownloadDirectoryPath;
+          } else {
+            Alert.alert('Permission Denied', 'Storage permission is required. Saving to app-private storage instead.');
+            dir = RNFS.DocumentDirectoryPath;
           }
-        );
-        if (!writeGranted) {
-          Alert.alert('Permission Denied', 'Storage permission is required.');
-          return;
         }
       }
-      const filePath = `${dir}/ocr_result_${Date.now()}.txt`;
+      filePath = `${dir}/ocr_result_${Date.now()}.txt`;
       await RNFS.writeFile(filePath, extractedText, 'utf8');
       setSaveStatus(`Text saved to file:\n${filePath}`);
       Alert.alert('Success', `Text saved to file:\n${filePath}`);
