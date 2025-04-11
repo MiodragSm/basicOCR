@@ -64,13 +64,13 @@ import {
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 
 // ML Kit for OCR
-import MLKitOcr from 'react-native-mlkit';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
 
 // Geolocation
 import Geolocation from 'react-native-geolocation-service';
 
 // Save photo to gallery
-import CameraRoll from '@react-native-community/cameraroll';
+import CameraRoll from 'react-native-cameraroll';
 
 // Save text to file
 import RNFS from 'react-native-fs';
@@ -238,11 +238,9 @@ const App = () => {
 
     // 2. Perform OCR
     try {
-      const result = await MLKitOcr.detectFromUri(uri);
-      if (result && result.length > 0) {
-        // Concatenate all recognized text blocks
-        const text = result.map((block) => block.text).join('\n');
-        setExtractedText(text.trim() ? text : 'No text detected.');
+      const result = await TextRecognition.recognize(uri);
+      if (result && result.text) {
+        setExtractedText(result.text.trim() ? result.text : 'No text detected.');
       } else {
         setExtractedText('No text detected.');
       }
