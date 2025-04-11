@@ -108,16 +108,16 @@ const App = () => {
           const granted = await requestAndroidPermission(
             PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
             {
-              title: 'Location Permission',
-              message: 'This app needs access to your location to tag OCR scans.',
-              buttonPositive: 'OK',
+              title: 'Dozvola za lokaciju',
+              message: 'Aplikacija zahteva pristup vašoj lokaciji radi označavanja OCR skeniranja.',
+              buttonPositive: 'U redu',
             }
           );
           if (!granted) {
             Alert.alert(
               'Permission Required',
-              'Location permission is required for geotagging scans. Please enable it in settings.',
-              [{ text: 'OK' }]
+              'Dozvola za lokaciju je potrebna za geooznačavanje skeniranja. Omogućite je u podešavanjima.',
+              [{ text: 'U redu' }]
             );
           }
         }
@@ -142,12 +142,12 @@ const App = () => {
         PermissionsAndroid.PERMISSIONS.CAMERA,
         {
           title: 'Camera Permission',
-          message: 'App needs camera access to take photos.',
-          buttonPositive: 'OK',
+          message: 'Aplikacija zahteva pristup kameri za fotografisanje.',
+          buttonPositive: 'U redu',
         }
       );
       if (!cameraGranted) {
-        Alert.alert('Permission Denied', 'Camera permission is required.');
+        Alert.alert('Dozvola odbijena', 'Potrebna je dozvola za kameru.');
         return;
       }
     }
@@ -161,7 +161,7 @@ const App = () => {
       async (response) => {
         if (response.didCancel) {return;}
         if (response.errorCode) {
-          Alert.alert('Camera Error', response.errorMessage || 'Unknown error');
+          Alert.alert('Greška kamere', response.errorMessage || 'Nepoznata greška');
           return;
         }
         if (response.assets && response.assets.length > 0) {
@@ -188,13 +188,13 @@ const App = () => {
       const storageGranted = await requestAndroidPermission(
         PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
         {
-          title: 'Storage Permission',
-          message: 'App needs access to your gallery.',
-          buttonPositive: 'OK',
+          title: 'Dozvola za skladištenje',
+          message: 'Aplikacija zahteva pristup vašoj galeriji.',
+          buttonPositive: 'U redu',
         }
       );
       if (!storageGranted) {
-        Alert.alert('Permission Denied', 'Storage permission is required.');
+        Alert.alert('Dozvola odbijena', 'Potrebna je dozvola za skladištenje.');
         return;
       }
     }
@@ -207,7 +207,7 @@ const App = () => {
       async (response) => {
         if (response.didCancel) {return;}
         if (response.errorCode) {
-          Alert.alert('Gallery Error', response.errorMessage || 'Unknown error');
+          Alert.alert('Greška galerije', response.errorMessage || 'Nepoznata greška');
           return;
         }
         if (response.assets && response.assets.length > 0) {
@@ -234,12 +234,12 @@ const App = () => {
         const locGranted = await requestAndroidPermission(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
           {
-            title: 'Location Permission',
-            message: 'App needs your location to tag scans.',
-            buttonPositive: 'OK',
+            title: 'Dozvola za lokaciju',
+            message: 'Aplikacija zahteva vašu lokaciju za označavanje skeniranja.',
+            buttonPositive: 'U redu',
           }
         );
-        if (!locGranted) {throw new Error('Location permission denied');}
+        if (!locGranted) {throw new Error('Dozvola za lokaciju je odbijena');}
       }
       if (Platform.OS === 'ios') {
         // iOS: Geolocation permission is handled by Info.plist
@@ -269,12 +269,12 @@ const App = () => {
     try {
       const result = await TextRecognition.recognize(uri);
       if (result && result.text) {
-        setExtractedText(result.text.trim() ? result.text : 'No text detected.');
+        setExtractedText(result.text.trim() ? result.text : 'Nije pronađen tekst.');
       } else {
-        setExtractedText('No text detected.');
+        setExtractedText('Nije pronađen tekst.');
       }
     } catch (err) {
-      setExtractedText('OCR failed: ' + (err.message || 'Unknown error'));
+      setExtractedText('OCR nije uspeo: ' + (err.message || 'Nepoznata greška'));
     }
     setLoading(false);
 
@@ -302,21 +302,21 @@ const App = () => {
           PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
           {
             title: 'Storage Permission',
-            message: 'App needs storage access to save photos.',
-            buttonPositive: 'OK',
+            message: 'Aplikacija zahteva pristup skladištu za čuvanje fotografija.',
+            buttonPositive: 'U redu',
           }
         );
         if (!writeGranted) {
-          Alert.alert('Permission Denied', 'Storage permission is required.');
+          Alert.alert('Dozvola odbijena', 'Potrebna je dozvola za skladištenje.');
           return;
         }
       }
       await CameraRoll.save(imageUri, { type: 'photo' });
       setSaveStatus('Photo saved to gallery.');
-      Alert.alert('Success', 'Photo saved to gallery.');
+      Alert.alert('Uspeh', 'Fotografija je sačuvana u galeriji.');
     } catch (err) {
       setSaveStatus('Failed to save photo.');
-      Alert.alert('Error', 'Failed to save photo: ' + (err.message || 'Unknown error'));
+      Alert.alert('Greška', 'Neuspešno čuvanje fotografije: ' + (err.message || 'Nepoznata greška'));
     }
   };
 
@@ -326,7 +326,7 @@ const App = () => {
     try {
       await Share.share({ message: extractedText });
     } catch (err) {
-      Alert.alert('Error', 'Failed to share text: ' + (err.message || 'Unknown error'));
+      Alert.alert('Greška', 'Neuspešno deljenje teksta: ' + (err.message || 'Nepoznata greška'));
     }
   };
 
@@ -334,7 +334,7 @@ const App = () => {
   const handleCopyText = () => {
     if (!extractedText || extractedText.startsWith('No text') || extractedText.startsWith('OCR failed')) {return;}
     Clipboard.setString(extractedText);
-    setCopyStatus('Copied!');
+    setCopyStatus('Kopirano!');
     setTimeout(() => setCopyStatus(null), 1500);
   };
 
@@ -356,56 +356,60 @@ const App = () => {
           const writeGranted = await requestAndroidPermission(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
             {
-              title: 'Storage Permission',
-              message: 'App needs storage access to save files to Downloads.',
-              buttonPositive: 'OK',
+              title: 'Dozvola za skladištenje',
+              message: 'Aplikacija zahteva pristup skladištu za čuvanje fajlova u Preuzimanja.',
+              buttonPositive: 'U redu',
             }
           );
           if (writeGranted) {
             dir = RNFS.DownloadDirectoryPath;
           } else {
-            Alert.alert('Permission Denied', 'Storage permission is required. Saving to app-private storage instead.');
+            Alert.alert('Dozvola odbijena', 'Potrebna je dozvola za skladištenje. Čuvanje u privatnu memoriju aplikacije.');
             dir = RNFS.DocumentDirectoryPath;
           }
         }
       }
       filePath = `${dir}/ocr_result_${Date.now()}.txt`;
       await RNFS.writeFile(filePath, extractedText, 'utf8');
-      setSaveStatus(`Text saved to file:\n${filePath}`);
-      Alert.alert('Success', `Text saved to file:\n${filePath}`);
+      setSaveStatus(`Tekst je sačuvan u fajl:\n${filePath}`);
+      Alert.alert('Uspeh', `Tekst je sačuvan u fajl:\n${filePath}`);
     } catch (err) {
-      setSaveStatus('Failed to save text.');
-      Alert.alert('Error', 'Failed to save text: ' + (err.message || 'Unknown error'));
+      setSaveStatus('Neuspešno čuvanje teksta.');
+      Alert.alert('Greška', 'Neuspešno čuvanje teksta: ' + (err.message || 'Nepoznata greška'));
     }
   };
 
   // UI rendering
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>OCR App with Geolocation, Save & Share</Text>
+      <Text style={styles.title}>OCR aplikacija sa geolokacijom, čuvanjem i deljenjem</Text>
       <View style={styles.buttonRow}>
-        <Button title="Take Photo" onPress={handleTakePhoto} />
+        <TouchableOpacity style={styles.actionButtonFixed} onPress={handleTakePhoto}>
+          <Text style={styles.actionButtonTextFixed}>Fotografiši</Text>
+        </TouchableOpacity>
         <View style={{ width: 16 }} />
-        <Button title="Select from Gallery" onPress={handleSelectFromGallery} />
+        <TouchableOpacity style={styles.actionButtonFixed} onPress={handleSelectFromGallery}>
+          <Text style={styles.actionButtonTextFixed}>Izaberi iz galerije</Text>
+        </TouchableOpacity>
       </View>
 
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Processing...</Text>
+          <Text style={styles.loadingText}>Obrada u toku...</Text>
         </View>
       )}
 
       {imageUri && (
         <View style={styles.resultSection}>
-          <Text style={styles.sectionTitle}>Image:</Text>
+          <Text style={styles.sectionTitle}>Slika:</Text>
           <Image source={{ uri: imageUri }} style={styles.image} resizeMode="contain" />
         </View>
       )}
 
       {extractedText !== '' && (
         <View style={styles.resultSection}>
-          <Text style={styles.sectionTitle}>Extracted Text:</Text>
+          <Text style={styles.sectionTitle}>Ekstrahovani tekst:</Text>
           <Text style={styles.textBlock}>
             {extractedText}
           </Text>
@@ -414,53 +418,53 @@ const App = () => {
 
       {location && (
         <View style={styles.resultSection}>
-          <Text style={styles.sectionTitle}>Location:</Text>
+          <Text style={styles.sectionTitle}>Lokacija:</Text>
           <Text style={styles.textBlock}>
-            Latitude: {location.latitude}{'\n'}Longitude: {location.longitude}
+            Geografska širina: {location.latitude}{'\n'}Geografska dužina: {location.longitude}
           </Text>
         </View>
       )}
       {(!location && imageUri && !loading) && (
         <View style={styles.resultSection}>
-          <Text style={styles.sectionTitle}>Location:</Text>
-          <Text style={styles.textBlock}>Location not available.</Text>
+          <Text style={styles.sectionTitle}>Lokacija:</Text>
+          <Text style={styles.textBlock}>Lokacija nije dostupna.</Text>
         </View>
       )}
 
       {/* Save photo button (only for camera images) */}
       {imageUri && imageSource === 'camera' && (
         <TouchableOpacity style={styles.actionButton} onPress={handleSavePhoto}>
-          <Text style={styles.actionButtonText}>Save Photo to Gallery</Text>
+          <Text style={styles.actionButtonText}>Sačuvaj fotografiju u galeriju</Text>
         </TouchableOpacity>
       )}
 
       {/* Text actions: only if valid text */}
       {extractedText && !extractedText.startsWith('No text') && !extractedText.startsWith('OCR failed') && (
         <View style={styles.textActionsRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleShareText}>
-            <Text style={styles.actionButtonText}>Share Text</Text>
+          <TouchableOpacity style={styles.actionButtonFixed} onPress={handleShareText}>
+            <Text style={styles.actionButtonTextFixed}>Podeli tekst</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={handleCopyText}>
-            <Text style={styles.actionButtonText}>Copy Text</Text>
+          <TouchableOpacity style={styles.actionButtonFixed} onPress={handleCopyText}>
+            <Text style={styles.actionButtonTextFixed}>Kopiraj tekst</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={handleSaveTextToFile}>
-            <Text style={styles.actionButtonText}>Save Text to File</Text>
+          <TouchableOpacity style={styles.actionButtonFixed} onPress={handleSaveTextToFile}>
+            <Text style={styles.actionButtonTextFixed}>Sačuvaj tekst u fajl</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Feedback messages */}
       {saveStatus && (
-        <Text style={styles.statusMessage}>{saveStatus}</Text>
+        <Text style={styles.statusMessage}>{saveStatus && saveStatus.replace('Photo saved to gallery.', 'Fotografija je sačuvana u galeriji.').replace('Failed to save photo.', 'Neuspešno čuvanje fotografije.').replace('Text saved to file:', 'Tekst je sačuvan u fajl:').replace('Failed to save text.', 'Neuspešno čuvanje teksta.').replace('Permission Denied', 'Dozvola odbijena').replace('Saving to app-private storage instead.', 'Čuvanje u privatnu memoriju aplikacije.').replace('Storage permission is required.', 'Potrebna je dozvola za skladištenje.').replace('OCR failed', 'OCR nije uspeo')}</Text>
       )}
       {copyStatus && (
-        <Text style={styles.statusMessage}>{copyStatus}</Text>
+        <Text style={styles.statusMessage}>{copyStatus && copyStatus.replace('Copied!', 'Kopirano!')}</Text>
       )}
 
       <View style={{ height: 32 }} />
-      <Text style={styles.footer}>
-        See code comments for setup instructions and permissions.
-      </Text>
+      {/* <Text style={styles.footer}>
+        Pogledajte komentare u kodu za uputstva o podešavanju i dozvolama.
+      </Text> */}
     </ScrollView>
   );
 };
@@ -522,20 +526,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginVertical: 14,
+    width: '100%',
   },
-  actionButton: {
+  actionButtonFixed: {
     backgroundColor: '#007AFF',
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 8,
     borderRadius: 6,
     marginHorizontal: 4,
-    minWidth: 90,
+    flex: 1,
+    maxWidth: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  actionButtonText: {
+  actionButtonTextFixed: {
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 15,
+    textAlign: 'center',
+    flexWrap: 'wrap',
+    width: '100%',
   },
   statusMessage: {
     color: '#007AFF',
