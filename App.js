@@ -48,7 +48,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  Button,
   Image,
   StyleSheet,
   ActivityIndicator,
@@ -98,7 +97,7 @@ const App = () => {
   const [saveStatus, setSaveStatus] = useState(null); // Success/error for saving photo/text
   const [copyStatus, setCopyStatus] = useState(null); // Feedback for copy action
   // Scan history: array of { imageUri, extractedText, location, timestamp }
-  const [history, setHistory] = useState([]);
+  const [, setHistory] = useState([]);
   // Check and request geolocation permission on app start
   React.useEffect(() => {
     async function checkAndRequestLocationPermission() {
@@ -387,7 +386,7 @@ const App = () => {
         <TouchableOpacity style={styles.actionButtonFixed} onPress={handleTakePhoto}>
           <Text style={styles.actionButtonTextFixed}>Fotografiši</Text>
         </TouchableOpacity>
-        <View style={{ width: 16 }} />
+        <View style={styles.buttonSpacer} />
         <TouchableOpacity style={styles.actionButtonFixed} onPress={handleSelectFromGallery}>
           <Text style={styles.actionButtonTextFixed}>Izaberi iz galerije</Text>
         </TouchableOpacity>
@@ -488,6 +487,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginBottom: 18,
+  },
+  buttonSpacer: {
+    width: 16,
   },
   loadingContainer: {
     alignItems: 'center',
