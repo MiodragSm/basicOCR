@@ -55,8 +55,8 @@ This React Native CLI application enables users to scan text from images using t
 ### Clone the Repository
 
 ```sh
-git clone <your-repo-url>
-cd <your-repo-directory>
+git clone https://github.com/MiodragSm/basicOCR.git
+cd basicOCR
 ```
 
 ### Install Dependencies
