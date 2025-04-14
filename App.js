@@ -1,4 +1,4 @@
-// App.js
+ // App.js
 /**
  * React Native CLI OCR App with Geolocation, Save & Share Features
  *
@@ -347,25 +347,34 @@ const App = () => {
       let filePath = '';
       if (Platform.OS === 'android') {
         const apiLevel = Platform.Version;
-        if (apiLevel >= 30) {
-          // Android 11+ (Scoped Storage): use app-private directory
-          dir = RNFS.DocumentDirectoryPath;
-        } else if (RNFS.DownloadDirectoryPath) {
-          // Android < 11: can use Downloads with permission
-          const writeGranted = await requestAndroidPermission(
-            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-            {
-              title: 'Dozvola za skladištenje',
-              message: 'Aplikacija zahteva pristup skladištu za čuvanje fajlova u Preuzimanja.',
-              buttonPositive: 'U redu',
-            }
-          );
+        if (RNFS.DownloadDirectoryPath) {
+          // Try to use Downloads if available and permission is granted
+          let writeGranted = true;
+          if (apiLevel < 30) {
+            writeGranted = await requestAndroidPermission(
+              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+              {
+                title: 'Dozvola za skladištenje',
+                message: 'Aplikacija zahteva pristup skladištu za čuvanje fajlova u Preuzimanja.',
+                buttonPositive: 'U redu',
+              }
+            );
+          }
           if (writeGranted) {
             dir = RNFS.DownloadDirectoryPath;
+          } else if (RNFS.ExternalDirectoryPath) {
+            // Use external app folder if permission denied
+            dir = RNFS.ExternalDirectoryPath;
           } else {
-            Alert.alert('Dozvola odbijena', 'Potrebna je dozvola za skladištenje. Čuvanje u privatnu memoriju aplikacije.');
+            // Fallback to app-private directory
             dir = RNFS.DocumentDirectoryPath;
           }
+        } else if (RNFS.ExternalDirectoryPath) {
+          // Use external app folder if Downloads is not available
+          dir = RNFS.ExternalDirectoryPath;
+        } else {
+          // Fallback to app-private directory
+          dir = RNFS.DocumentDirectoryPath;
         }
       }
       filePath = `${dir}/ocr_result_${Date.now()}.txt`;
