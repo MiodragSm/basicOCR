@@ -1,5 +1,5 @@
 {
-  "name": "basicOCR",
+  "name": "basicocr",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -15,11 +15,9 @@
     "@react-native-ml-kit/text-recognition": "^1.5.2",
     "react": "19.0.0",
     "react-native": "0.79.0",
-    "react-native-cameraroll": "^1.0.0-alpha2",
     "react-native-fs": "^2.20.0",
     "react-native-geolocation-service": "^5.3.1",
-    "react-native-image-picker": "^8.2.0",
-    "react-native-share": "^12.0.9"
+    "react-native-image-picker": "^8.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
